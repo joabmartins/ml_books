@@ -100,7 +100,7 @@ services:
       retries: 5
       start_period: 5s
     restart: always
-
+  
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
@@ -340,6 +340,21 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+  elasticsearch:
+    image: elasticsearch:7.17.3
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+
+  kibana:
+    image: kibana:7.17.3
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
 
 volumes:
   postgres-db-volume:
