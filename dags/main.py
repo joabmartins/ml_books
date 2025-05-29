@@ -102,7 +102,7 @@ create_table_task = SQLExecuteQueryOperator(
      dag=dag,
 )
 
-# TAREFA 04
+# TAREFA 04 -> popular tabela
 def insert_book_data_into_postgres(ti):
      book_data = ti.xcom_pull(key='book_data', task_ids='fetch_book_data')
      if not book_data:
@@ -111,7 +111,7 @@ def insert_book_data_into_postgres(ti):
      insert_query = """
      INSERT INTO books_ml (title, price)
      VALUES (%s, %s)
-     """
+"""
      for book in book_data:
           postgres_hook.run(insert_query, parameters=(book['Title'], book['Price']))
 
