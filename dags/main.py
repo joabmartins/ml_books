@@ -3,14 +3,11 @@ from datetime import datetime, timedelta
 from airflow.operators.python import PythonOperator
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from airflow.providers.postgres.hooks.postgres import PostgresHook
 
 default_args = {
      'owner': 'airflow',
      'depends_on_past': False,
-     'start_date': datetime(2025, 5, 8), # data de hoje
+     'start_date': datetime(2025, 5, 22), # data de hoje
      'retries': 1,
      'retry_delay': timedelta(minutes=5),
      'schedule_interval': '@daily'
@@ -33,7 +30,7 @@ dag = DAG(
 
 # TAREFAS 01
 def iniciar_pipeline(ti):
-     print(">>Debug: Pipeline e primeira tarefa configurada com sucesso!")
+     print("Hello, World!")
 
 init_task = PythonOperator(
      task_id='init',
@@ -41,7 +38,7 @@ init_task = PythonOperator(
      dag=dag,
 )
 
-# TAREFA 02 - > Obter os dados do mercado livre
+# TAREFA 02
 def get_books(num_books, ti): # -> função python para executar a segunda task (obter dados)
      base_url = f"https://lista.mercadolivre.com.br/data-engineering-books" # -> url do ml
      books = [] # -> array que guarda os livros obtidos, com chave e valor
@@ -77,10 +74,8 @@ def get_books(num_books, ti): # -> função python para executar a segunda task 
                break
           
      books = books[:num_books] # -> list slicing: se o array for maior do que queremos, corte o restante
+
      print(f">>Debug: qtd.books: {len(books)}") # -> mostra no terminal a quantidade de livros obtidos (100 ou menos)
-     df = pd.DataFrame(books)
-     df.drop_duplicates(subset="Title", inplace=True)
-     ti.xcom_push(key='book_data', value=df.to_dict('records'))
 
 fetch_book_data_task = PythonOperator(
      task_id='fetch_book_data',
@@ -89,37 +84,5 @@ fetch_book_data_task = PythonOperator(
      dag=dag,
 )
 
-# TAREFA 03 -> criar tabela
-create_table_task = SQLExecuteQueryOperator(
-     task_id='create_table',
-     conn_id='books_connection',
-     sql="""
-     CREATE TABLE IF NOT EXISTS books_ml (
-          id SERIAL PRIMARY KEY,
-          title TEXT NOT NULL,
-          price TEXT)
-     """,
-     dag=dag,
-)
-
-# TAREFA 04
-def insert_book_data_into_postgres(ti):
-     book_data = ti.xcom_pull(key='book_data', task_ids='fetch_book_data')
-     if not book_data:
-          raise ValueError("No book data found")
-     postgres_hook = PostgresHook(postgres_conn_id='books_connection')
-     insert_query = """
-     INSERT INTO books_ml (title, price)
-     VALUES (%s, %s)
-     """
-     for book in book_data:
-          postgres_hook.run(insert_query, parameters=(book['Title'], book['Price']))
-
-insert_book_data_task = PythonOperator(
-     task_id='insert_book_data',
-     python_callable=insert_book_data_into_postgres,
-     dag=dag,
-)
-
 # DEPENDENCIAS
-init_task >> fetch_book_data_task >> create_table_task >> insert_book_data_task
+init_task >> fetch_book_data_task

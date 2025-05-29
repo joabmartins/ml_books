@@ -100,16 +100,16 @@ services:
       retries: 5
       start_period: 5s
     restart: always
-
+  
   pgadmin:
-    container_name: pgadmin4_container
+    container_name: pgadminn4_container
     image: dpage/pgadmin4
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
     ports:
-      - "5050:80"
+     - "5050:80"
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -131,7 +131,8 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
+      test: ["CMD", "curl", "--fail", "http://localhost:8080
+      /api/v2/version"]
       interval: 30s
       timeout: 10s
       retries: 5
