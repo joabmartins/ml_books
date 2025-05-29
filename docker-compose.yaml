@@ -102,14 +102,14 @@ services:
     restart: always
 
   pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - "5050:80"
+      container_name: pgadmin4_container
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@admin.com
+        PGADMIN_DEFAULT_PASSWORD: root
+      ports:
+        - "5050:80"
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
