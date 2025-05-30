@@ -1,2 +1,2 @@
-# ignorar todas as pastas de logs
+#Arquivos em que sera ignorado do arquivo
 **/logs
