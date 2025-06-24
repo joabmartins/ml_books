@@ -341,5 +341,20 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  elasticsearch:
+    image: elasticsearch:7.17.3
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # usar no mínimo o no máximo 512megas do pc, caso contrário vai usar muitos gigas para executar
+    ports: 
+      - 9200:9200
+
+  kibana:
+    image: kibana:7.17.3
+    environment:
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+
 volumes:
   postgres-db-volume:
